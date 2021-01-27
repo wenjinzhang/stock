@@ -1,0 +1,26 @@
+</DOCTYPE html>
+<html lang="en">
+<head>
+    <title>stock</title>
+</head>
+<h1>Automatically load AAPL stock daily info</h1>
+<table style="width:100%">
+  <tr>
+    <th>Time</th>
+    <th>Open</th>
+    <th>High</th>
+    <th>Low</th>
+    <th>Close</th>
+    <th>Adj Close</th>
+    <th>Volume</th>
+  </tr>
+{% for time, stock in stocks.items %}
+    <tr>
+    <td>{{time}}</td>
+    {% for key, value in stock.items %}
+    <td>{{value}}</td>
+    {% endfor %}
+  </tr>
+{% endfor %}
+</table>
+</html>
