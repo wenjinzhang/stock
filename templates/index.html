@@ -16,7 +16,7 @@
   </tr>
 {% for time, stock in stocks.items %}
     <tr>
-    <td>{{time}}</td>
+    <td>{{time|date:"Y-m-d H:i:s" }}</td>
     {% for key, value in stock.items %}
     <td>{{value}}</td>
     {% endfor %}
