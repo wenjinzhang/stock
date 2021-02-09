@@ -13,7 +13,7 @@ class Stock(models.Model):
 
 class StockInfo(models.Model):
     id = models.CharField("timestamp_symbol", max_length=50, primary_key = True)
-    stock = models.ForeignKey(Stock, on_delete=models.CASCADE)
+    stock = models.ForeignKey(Stock, on_delete=models.CASCADE, related_name="info_set")
     open_price = models.DecimalField("Open", max_digits=11, decimal_places=2, default=None)
     high_price = models.DecimalField("High", max_digits=11, decimal_places=2, default=None)
     low_price = models.DecimalField("Low", max_digits=11, decimal_places=2, default=None)

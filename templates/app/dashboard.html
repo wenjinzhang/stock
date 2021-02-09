@@ -1,0 +1,117 @@
+{%extends "app/layout.html" %}
+
+{% block content %}
+<div class="outter-wp">
+    <!--custom-widgets-->
+    <div class="custom-widgets">
+        <div class="row-one">
+            <div class="col-md-3 widget">
+                <div class="stats-left ">
+                    <h5>Today</h5>
+                    <h4> Users</h4>
+                </div>
+                <div class="stats-right">
+                    <label>90</label>
+                </div>
+                <div class="clearfix"> </div>
+            </div>
+            <div class="col-md-3 widget states-mdl">
+                <div class="stats-left">
+                    <h5>Today</h5>
+                    <h4>Visitors</h4>
+                </div>
+                <div class="stats-right">
+                    <label> 85</label>
+                </div>
+                <div class="clearfix"> </div>
+            </div>
+            <div class="col-md-3 widget states-thrd">
+                <div class="stats-left">
+                    <h5>Today</h5>
+                    <h4>Tasks</h4>
+                </div>
+                <div class="stats-right">
+                    <label>51</label>
+                </div>
+                <div class="clearfix"> </div>
+            </div>
+            <div class="col-md-3 widget states-last">
+                <div class="stats-left">
+                    <h5>Today</h5>
+                    <h4>Alerts</h4>
+                </div>
+                <div class="stats-right">
+                    <label>30</label>
+                </div>
+                <div class="clearfix"> </div>
+            </div>
+            <div class="clearfix"> </div>
+        </div>
+    </div>
+    <!--//custom-widgets-->
+    <!--/candile-->
+    <div class="charts">
+        <div class="chrt-inner">
+            <div class="chrt-bars">
+                {% for stock, infos in top_stocks_dict.items %}
+
+                <div class="col-md-6 chrt-three">
+                    <h3 class="sub-tittle">{{stock.company}}({{stock.symbol}})</h3>
+                    <!-- <div id="center"> -->
+                    <div id="fig{{stock.symbol}}" style="width: 100%; height: 350px"></div>
+                    <script>
+                        rawData = [
+                            {% for info in infos %}
+                                ["{{info.date|date:"Y - m - d"}}", {{ info.open_price }}, {{ info.close_price }}, {{ info.low_price }}, {{ info.high_price }}],
+                            {% endfor %}
+                        ].reverse()
+                        // create ECharts object 
+                        var myChart = echarts.init(document.getElementById("fig{{stock.symbol}}"))
+                        // config 
+                        var option = {
+                            xAxis: {
+                                type: "category",
+                                data: rawData.map(
+                                    function (items) {
+                                        return items[0]
+                                    }
+                                )
+                            },
+
+                            yAxis: {
+                                scale: true
+                            },
+                            series: [
+
+                                {
+                                    type: "candlestick",
+
+                                    itemStyle: {
+                                        normal: {
+                                            color: "#ED1C24",
+                                            borderColor: "#ED1C24",
+
+                                            color0: "#008000",
+                                            borderColor0: "#008000"
+                                        }
+                                    },
+                                    // add data
+                                    data: rawData.map(
+                                        function (item) {
+                                            return [+item[1], +item[2], +item[3], +item[4]]
+                                        }
+                                    )
+                                }
+                            ]
+                        }
+                        myChart.setOption(option) 
+                    </script>
+                    <!-- </div> -->
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!--/candile-->
+</div>
+{% endblock %}

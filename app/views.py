@@ -30,3 +30,13 @@ def test(request):
 
     data = yf.download("ES=F", period = "5d", interval = "1d")
     return  render(request,"index.html", {"stocks":data.to_dict('index')})
+
+
+def dashboard(request):
+    stocks = Stock.objects.order_by('company')[0:3]
+    top_stock_dict = {}
+    for stock in stocks:
+        top_stock_dict[stock] = stock.info_set.order_by("-date")[0:30]
+        print(top_stock_dict[stock])
+
+    return render(request, "app/dashboard.html", {"top_stocks_dict": top_stock_dict})
