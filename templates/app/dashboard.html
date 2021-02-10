@@ -62,13 +62,27 @@
                     <script>
                         rawData = [
                             {% for info in infos %}
-                                ["{{info.date|date:"Y - m - d"}}", {{ info.open_price }}, {{ info.close_price }}, {{ info.low_price }}, {{ info.high_price }}],
+                        ["{{info.date|date:"Y - m - d"}}", {{ info.open_price }}, {{ info.close_price }}, {{ info.low_price }}, {{ info.high_price }}],
                             {% endfor %}
                         ].reverse()
                         // create ECharts object 
                         var myChart = echarts.init(document.getElementById("fig{{stock.symbol}}"))
                         // config 
                         var option = {
+                            tooltip: {
+                                axisPointer: {
+                                    type: 'cross'
+                                },
+                                trigger: 'item',
+                                formatter: function (params) {
+                                    return 'date: ' + params.name + '<br>' +
+                                        'open: ' + params.value[1] + '<br>' +
+                                        'close: ' + params.value[2] + '<br>' +
+                                        'low: ' + params.value[3] + '<br>' +
+                                        'hight: ' + params.value[4]
+                                },
+                                borderWidth: 1
+                            }, 
                             xAxis: {
                                 type: "category",
                                 data: rawData.map(
@@ -77,15 +91,12 @@
                                     }
                                 )
                             },
-
                             yAxis: {
                                 scale: true
                             },
                             series: [
-
                                 {
                                     type: "candlestick",
-
                                     itemStyle: {
                                         normal: {
                                             color: "#ED1C24",
