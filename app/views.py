@@ -36,7 +36,7 @@ def dashboard(request):
     stocks = Stock.objects.order_by('company')[0:3]
     top_stock_dict = {}
     for stock in stocks:
+        # get the last 30 days price info
         top_stock_dict[stock] = stock.info_set.order_by("-date")[0:30]
         print(top_stock_dict[stock])
-
     return render(request, "app/dashboard.html", {"top_stocks_dict": top_stock_dict})
