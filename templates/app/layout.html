@@ -1,5 +1,6 @@
 <!DOCTYPE HTML>
 <html>
+
 <head>
 	<title>Home</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -278,8 +279,8 @@
 					<div class="clearfix"></div>
 				</div>
 				<!-- //header-ends -->
-                {% block content %} 
-                {% endblock %}
+				{% block content %}
+				{% endblock %}
 				<!--footer section start-->
 				<footer>
 					<p>Copyright &copy; Rutgers University All rights reserved.<a target="_blank"
@@ -315,7 +316,13 @@
 			<!--//down-->
 			<div class="menu">
 				<ul id="menu">
-					<li><a href="index.html"><i class="fa fa-tachometer"></i> <span>Dashboard</span></a></li>
+					<li><a href="{% url 'app:dashboard' %}"><i class="fa fa-tachometer"></i> <span>Dashboard</span></a></li>
+
+					<li><a href="{% url 'app:predict' %}"><i class="lnr lnr-chart-bars"></i> <span>Prediction</span> <span
+								class="fa fa-angle-right" style="float: right"></span></a>
+					</li>
+					
+
 					<li id="menu-academico"><a href="#"><i class="fa fa-table"></i> <span> Tabs &amp; Panels</span>
 							<span class="fa fa-angle-right" style="float: right"></span></a>
 						<ul id="menu-academico-sub">

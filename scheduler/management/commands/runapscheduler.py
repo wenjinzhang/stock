@@ -7,14 +7,16 @@ from apscheduler.triggers.cron import CronTrigger
 from django.core.management.base import BaseCommand
 from django_apscheduler.jobstores import DjangoJobStore
 from django_apscheduler.models import DjangoJobExecution
-from app.models import Stock, StockInfo
+from app.models import Stock, StockInfo, PredictPrice
 import yfinance as yf
 from tqdm import tqdm
 from django.utils.timezone import make_aware
 from pandas import Timestamp
 
-logger = logging.getLogger(__name__)
+from scheduler.ml.train_regression_model import predict, train_model, train
 
+
+logger = logging.getLogger(__name__)
 
 def load_daily_stock_info():
     stocks = Stock.objects.all()
@@ -63,6 +65,25 @@ def delete_old_job_executions(max_age=604_800):
     DjangoJobExecution.objects.delete_old_job_executions(max_age)
 
 
+def predict_next_5days():
+    model_types =["RNN", "LSTM"]
+    stocks = Stock.objects.all()
+    for stock in stocks:
+        for model_type in model_types:
+            next5days = predict(stock.symbol, model_type)
+            for day in next5days:
+                print(day)
+                timestamp = str(day[0])
+                predictPrice = PredictPrice(
+                    id="{}_{}_{}".format(timestamp, stock.symbol, model_type),
+                    model_type = model_type,
+                    price = float(day[1]),
+                    date = Timestamp(timestamp, tz='UTC')
+                )
+                predictPrice.stock = stock
+                predictPrice.save()
+    
+
 class Command(BaseCommand):
     help = "Runs apscheduler."
 
@@ -72,12 +93,22 @@ class Command(BaseCommand):
         
         scheduler.add_job(
             load_daily_stock_info,
-            trigger=CronTrigger(hour=23, minute=59),  # Every 10 seconds
+            trigger=CronTrigger(hour=23, minute=59),  # Every 
             id="load_daily_stock_price",  # The `id` assigned to each job MUST be unique
             max_instances=1,
             replace_existing=True,
         )
         logger.info("Added job 'my_job'.")
+
+        scheduler.add_job(
+            predict_next_5days,
+            trigger=CronTrigger(hour=23, minute=59),  # Every 
+            id="predict_next_5days",  # The `id` assigned to each job MUST be unique
+            max_instances=1,
+            replace_existing=True,
+        )
+        logger.info("Added Job: predict_next_5days")
+
 
         scheduler.add_job(
             download_or_update_last_3year_stock_info,

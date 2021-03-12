@@ -1,6 +1,6 @@
 # Installation
 ```
-pip install django django-apscheduler yfinance tqdm
+pip install django django-apscheduler yfinance tqdm keras sklearn tensorflow
 ```
 
 # Quick start

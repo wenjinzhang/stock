@@ -1,0 +1,125 @@
+{%extends "app/layout.html" %}
+
+{% block content %}
+<div class="outter-wp">
+    <!--custom-widgets-->
+    <div class="custom-widgets">
+        <div class="row-one">
+            <div class="col-md-3 widget">
+                <div class="stats-left ">
+                    <h5>Today</h5>
+                    <h4> Users</h4>
+                </div>
+                <div class="stats-right">
+                    <label>90</label>
+                </div>
+                <div class="clearfix"> </div>
+            </div>
+            <div class="col-md-3 widget states-mdl">
+                <div class="stats-left">
+                    <h5>Today</h5>
+                    <h4>Visitors</h4>
+                </div>
+                <div class="stats-right">
+                    <label> 85</label>
+                </div>
+                <div class="clearfix"> </div>
+            </div>
+            <div class="col-md-3 widget states-thrd">
+                <div class="stats-left">
+                    <h5>Today</h5>
+                    <h4>Tasks</h4>
+                </div>
+                <div class="stats-right">
+                    <label>51</label>
+                </div>
+                <div class="clearfix"> </div>
+            </div>
+            <div class="col-md-3 widget states-last">
+                <div class="stats-left">
+                    <h5>Today</h5>
+                    <h4>Alerts</h4>
+                </div>
+                <div class="stats-right">
+                    <label>30</label>
+                </div>
+                <div class="clearfix"> </div>
+            </div>
+            <div class="clearfix"> </div>
+        </div>
+    </div>
+    <!--//custom-widgets-->
+    <!--/candile-->
+    <div class="charts">
+        <div class="chrt-inner">
+            <div class="chrt-bars">
+                {% for stock, predicts in top_stocks_dict.items %}
+
+                <div class="col-md-6 chrt-three">
+                    <h3 class="sub-tittle">{{stock.company}}({{stock.symbol}})</h3>
+                    <!-- <div id="center"> -->
+                    <div id="fig{{stock.symbol}}" style="width: 100%; height: 350px"></div>
+                    <script>
+                        model_type = []
+                        Xdata = []
+                        Ydata = []
+                        
+                        {% for model, prices in predicts.items %}
+                        Xdata = []
+                        model_type.push("{{model}}");
+                        Yvalue={
+                            name: "{{model}}",
+                            type: 'line',
+                            stack: "{{model}}",
+                            data: []
+                        }
+                        {% for price in prices %}
+                        Xdata.push("{{price.date|date:"Y - m - d"}}");
+                        Yvalue.data.push({{ price.price }})
+                        {% endfor %}
+                        Yvalue.data.reverse()
+                        Xdata.reverse()
+                        Ydata.push(Yvalue)
+                        console.log(Ydata)
+                        console.log(Xdata)
+                        {% endfor %}
+
+                        rawData = [
+                        ].reverse()
+
+
+                        // create ECharts object 
+                        var myChart = echarts.init(document.getElementById("fig{{stock.symbol}}"))
+                        // config 
+                        var option = {
+                            title: {
+                                text: 'title'
+                            },
+                            tooltip: {
+                                trigger: 'axis'
+                            },
+                            legend: {
+                                data: ['LSTM', 'RNN']
+                            },
+                            xAxis: {
+                                type: "category",
+                                data: Xdata,
+                            },
+                            yAxis: {
+                                //type: 'value'
+                                scale: true
+                            },
+                            series: Ydata,
+                            
+                        }
+                        myChart.setOption(option)
+                    </script>
+                    <!-- </div> -->
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!--/candile-->
+</div>
+{% endblock %}

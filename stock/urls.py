@@ -21,6 +21,6 @@ from scheduler import views as scheduler_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("app/", include('app.urls')),
+    path("app/", include(('app.urls', 'app'),namespace="app")),
     path('', views.home),
 ]

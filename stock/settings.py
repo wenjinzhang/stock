@@ -126,3 +126,5 @@ STATICFILES_DIRS = [
     BASE_DIR/"statics", 
 ]
 
+# ml base path
+ML_BASE_PATH = BASE_DIR/"trained_model"
