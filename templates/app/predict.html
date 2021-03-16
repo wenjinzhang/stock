@@ -63,11 +63,11 @@
                         model_type = []
                         Xdata = []
                         Ydata = []
-                        
+
                         {% for model, prices in predicts.items %}
                         Xdata = []
                         model_type.push("{{model}}");
-                        Yvalue={
+                        Yvalue = {
                             name: "{{model}}",
                             type: 'line',
                             stack: "{{model}}",
@@ -93,11 +93,16 @@
                         // config 
                         var option = {
                             title: {
-                                text: 'title'
+                                text: '{{stock.symbol}}'
                             },
                             tooltip: {
                                 trigger: 'axis'
                             },
+                            // toolbox: {
+                            //     feature: {
+                            //         saveAsImage: {}
+                            //     }
+                            // },
                             legend: {
                                 data: ['LSTM', 'RNN']
                             },
@@ -110,7 +115,7 @@
                                 scale: true
                             },
                             series: Ydata,
-                            
+
                         }
                         myChart.setOption(option)
                     </script>

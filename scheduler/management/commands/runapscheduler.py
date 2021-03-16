@@ -3,6 +3,7 @@ import logging
 from django.conf import settings
 
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
 from django.core.management.base import BaseCommand
 from django_apscheduler.jobstores import DjangoJobStore
@@ -82,15 +83,27 @@ def predict_next_5days():
                 )
                 predictPrice.stock = stock
                 predictPrice.save()
-    
+
+
+def test_task():
+    print("the task has been called")
 
 class Command(BaseCommand):
     help = "Runs apscheduler."
 
     def handle(self, *args, **options):
-        scheduler = BackgroundScheduler(timezone=settings.TIME_ZONE)
+        scheduler = BlockingScheduler(timezone=settings.TIME_ZONE)
         scheduler.add_jobstore(DjangoJobStore(), "default")
         
+        scheduler.add_job(
+            test_task,
+            trigger=CronTrigger(second="*/10"),  # Every 
+            id="test_task",  # The `id` assigned to each job MUST be unique
+            max_instances=1,
+            replace_existing=True,
+        )
+        logger.info("Added job 'test_job'.")
+
         scheduler.add_job(
             load_daily_stock_info,
             trigger=CronTrigger(hour=23, minute=59),  # Every 
