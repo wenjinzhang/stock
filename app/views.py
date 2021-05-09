@@ -33,7 +33,7 @@ def test(request):
 
 
 def dashboard(request):
-    stocks = Stock.objects.order_by('company')[0:3]
+    stocks = Stock.objects.order_by('company')[0:4]
     top_stock_dict = {}
     for stock in stocks:
         # get the last 30 days price info
@@ -44,14 +44,15 @@ def dashboard(request):
 
 
 def predict(request):
-    stocks = Stock.objects.order_by('company')[0:3]
+    stocks = Stock.objects.order_by('company')[0:4]
     top_stock_dict = {}
-    model_types = ["LSTM", "RNN"]
+    model_types = ["LSTM", "RNN", "COMB"]
     for stock in stocks:
         top_stock_dict[stock] = {}
         for model_type in model_types:
             top_stock_dict[stock][model_type] = stock.price_set.filter(model_type = model_type).order_by("-date")[:5]
     print(top_stock_dict)
+    
 
     return render(request, "app/predict.html", {"top_stocks_dict": top_stock_dict})
         

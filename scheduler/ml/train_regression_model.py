@@ -80,9 +80,31 @@ def train(stock_symbol, time_step, trainX, trainY, testX, testY, model_type="LST
             model = RNN((time_step, 1))
         else:
             model = RNN((time_step, 1))
-    model.fit(trainX, trainY, validation_data=(testX, testY), epochs=100, batch_size=16)
+
+    history = model.fit(trainX, trainY, validation_data=(testX, testY), epochs=100, batch_size=16)
+    loss = history.history['val_loss'][-1]
+    update_loss(stock_symbol, model_type, loss)
     model.save(model_path)
     return model
+
+def update_loss(stock_symbol, model_type, loss_val):
+    base_path = check_path(stock_symbol)
+    loss_path = base_path + "loss.pkl"
+    if os.path.exists(loss_path):
+        loss = pickle.load( open( loss_path, "rb" ) )
+    else:
+        loss = {}
+    loss[model_type] = loss_val
+    pickle.dump(loss, open(loss_path, "wb" ))
+
+def load_loss(stock_symbol):
+    base_path = check_path(stock_symbol)
+    loss_path = base_path + "loss.pkl"
+    if os.path.exists(loss_path):
+        loss = pickle.load( open( loss_path, "rb" ) )
+    else:
+        loss = None
+    return loss
 
 def train_model(stock_symbol, time_step=5):
     data = yf.download(stock_symbol, period = "2y", interval = "1d")
@@ -131,8 +153,10 @@ def predict(stock_symbol, model_type, next_days = 5, time_step=5):
 
 
 if __name__ =="__main__":
-    # train_model("AAPL")
-    next_5days = predict("AAPL", "LSTM")
-    print(next_5days)
-    print(type(next_5days[3]))
+    train_model("YM=F")
+    loss = load_loss("YM=F")
+    print(loss)
+    # next_5days = predict("AAPL", "LSTM")
+    # print(next_5days)
+    # print(type(next_5days[3]))
 

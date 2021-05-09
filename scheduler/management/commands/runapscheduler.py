@@ -14,8 +14,8 @@ from tqdm import tqdm
 from django.utils.timezone import make_aware
 from pandas import Timestamp
 
-from scheduler.ml.train_regression_model import predict, train_model, train
-
+from scheduler.ml.train_regression_model import predict, train_model, train, load_loss
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -65,11 +65,25 @@ def delete_old_job_executions(max_age=604_800):
     """This job deletes all apscheduler job executions older than `max_age` from the database."""
     DjangoJobExecution.objects.delete_old_job_executions(max_age)
 
+def softmax(x):
+    tmp = np.exp(x)
+    output = tmp / np.sum(tmp, axis=1, keepdims=True)
+    return output
+
+def loss2weight(loss, Emax = 0.005):
+    weight = [max(0, Emax - x)*100 for x in loss]
+    probabilities = softmax([weight])[0]
+    return probabilities
 
 def predict_next_5days():
     model_types =["RNN", "LSTM"]
     stocks = Stock.objects.all()
     for stock in stocks:
+        loss_dict = load_loss(stock.symbol)
+        loss_array = [ loss_dict[model_type] for model_type in model_types]
+        weights = loss2weight(loss_array)
+
+        i = 0
         for model_type in model_types:
             next5days = predict(stock.symbol, model_type)
             for day in next5days:
@@ -84,9 +98,36 @@ def predict_next_5days():
                 predictPrice.stock = stock
                 predictPrice.save()
 
+                # combine model
+                id = "{}_{}_{}".format(timestamp, stock.symbol, "COMB")
+                if i == 0:
+                    predictPrice = PredictPrice(
+                        id= id,
+                        model_type = "COMB",
+                        price = float(day[1]) * weights[i],
+                        date = Timestamp(timestamp, tz='UTC')
+                    )
+                else:
+                    predictPrice = PredictPrice.objects.get(pk=id)
+                    predictPrice.price = float(predictPrice.price) + float(day[1]) * weights[i]
+
+                predictPrice.stock = stock
+                predictPrice.save()
+            
+            i += 1
+    
+
+def retrain():
+    print("retrain model")
+    stocks = Stock.objects.all()
+    for stock in stocks:
+        print("retrain", stock.symbol)
+        train_model(stock.symbol)
+
 
 def test_task():
     print("the task has been called")
+
 
 class Command(BaseCommand):
     help = "Runs apscheduler."
@@ -95,14 +136,14 @@ class Command(BaseCommand):
         scheduler = BlockingScheduler(timezone=settings.TIME_ZONE)
         scheduler.add_jobstore(DjangoJobStore(), "default")
         
-        scheduler.add_job(
-            test_task,
-            trigger=CronTrigger(second="*/10"),  # Every 
-            id="test_task",  # The `id` assigned to each job MUST be unique
-            max_instances=1,
-            replace_existing=True,
-        )
-        logger.info("Added job 'test_job'.")
+        # scheduler.add_job(
+        #     test_task,
+        #     trigger=CronTrigger(second="*/10"),  # Every 
+        #     id="test_task",  # The `id` assigned to each job MUST be unique
+        #     max_instances=1,
+        #     replace_existing=True,
+        # )
+        # logger.info("Added job 'test_job'.")
 
         scheduler.add_job(
             load_daily_stock_info,
@@ -121,6 +162,15 @@ class Command(BaseCommand):
             replace_existing=True,
         )
         logger.info("Added Job: predict_next_5days")
+
+        scheduler.add_job(
+            retrain,
+            trigger=CronTrigger(day=1 ,hour=23, minute=59),  # Every 
+            id="retrain_model",  # The `id` assigned to each job MUST be unique
+            max_instances=1,
+            replace_existing=True,
+        )
+        logger.info("Added Job: retrain model")
 
 
         scheduler.add_job(

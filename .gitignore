@@ -239,3 +239,7 @@ Temporary Items
 # profiling data
 
 # End of https://www.toptal.com/developers/gitignore/api/python,macos,django
+
+*.h5
+
+**/trained_model/**
