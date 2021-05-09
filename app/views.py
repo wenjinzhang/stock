@@ -53,7 +53,6 @@ def predict(request):
             top_stock_dict[stock][model_type] = stock.price_set.filter(model_type = model_type).order_by("-date")[:5]
     print(top_stock_dict)
     
-
     return render(request, "app/predict.html", {"top_stocks_dict": top_stock_dict})
         
     

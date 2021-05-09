@@ -21,7 +21,7 @@ class StockInfo(models.Model):
     adj_close_price = models.DecimalField("Adj Close", max_digits=11, decimal_places=2, default=None)
     volume = models.DecimalField("Volume", max_digits=11, decimal_places=2, default=None)
     date = models.DateTimeField("Date", auto_now=False, auto_now_add=False, default=None)
-
+    
     def __str__(self):
         return "date:{};stock:{};close price:{}".format(self.date, self.stock, self.close_price)
     
