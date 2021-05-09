@@ -8,3 +8,7 @@ pip install django django-apscheduler yfinance tqdm keras sklearn tensorflow
 ```
 python manage.py runserver
 ```
+> run the scheduled task process 
+```
+python manage.py runapscheduler
+```
