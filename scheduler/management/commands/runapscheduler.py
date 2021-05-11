@@ -80,6 +80,8 @@ def predict_next_5days():
     stocks = Stock.objects.all()
     for stock in stocks:
         loss_dict = load_loss(stock.symbol)
+        if loss_dict == None:
+            loss_dict = load_loss('AAPL')
         loss_array = [ loss_dict[model_type] for model_type in model_types]
         weights = loss2weight(loss_array)
 

@@ -2,7 +2,7 @@
 ```
 pip install django django-apscheduler yfinance tqdm keras sklearn tensorflow
 ```
-# migrate database
+# Migrate database
 > python manage.py sqlmigrate app 0006
 > 
 > python manage.py migrate
